@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleConsole", "Tests\Simp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCakeBuilder", "CodeCakeBuilder\CodeCakeBuilder.csproj", "{4D95F08E-36B3-4BEE-BB27-CFA8E4CD189D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yodii.Script.Parser", "Yodii.Script.Parser\Yodii.Script.Parser.csproj", "{DEE9DA34-B112-4444-8F2C-E1F3AD10DB05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yodii.Script.Parser", "Yodii.Script.Parser\Yodii.Script.Parser.csproj", "{DEE9DA34-B112-4444-8F2C-E1F3AD10DB05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yodii.Script.Tests.Parser", "Tests\Yodii.Script.Tests.Parser\Yodii.Script.Tests.Parser.csproj", "{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{DEE9DA34-B112-4444-8F2C-E1F3AD10DB05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEE9DA34-B112-4444-8F2C-E1F3AD10DB05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEE9DA34-B112-4444-8F2C-E1F3AD10DB05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{AFFD0ABF-57AC-49E3-8C02-5C34D580D3FC} = {0453B444-D4D8-402E-A2CB-B5E0821B071C}
 		{5176A775-B968-4522-A1A2-7DC7772684F9} = {0453B444-D4D8-402E-A2CB-B5E0821B071C}
+		{1AE0D3E2-8B18-44B1-ADEE-9B0F9445A0CA} = {0453B444-D4D8-402E-A2CB-B5E0821B071C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31BADE94-6126-49E2-A65F-8107C21417B1}
