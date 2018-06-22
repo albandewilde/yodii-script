@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\IfExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\FunctionExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -31,28 +31,30 @@ using System.Diagnostics;
 namespace Yodii.Script
 {
 
-    public class IfExpr : Expr
+    public class FunctionExpr : Expr
     {
-        public IfExpr( SourceLocation location, bool isTernary, Expr condition, Expr whenTrue, Expr whenFalse )
-            : base( location, !isTernary || whenFalse.IsStatement, true )
+        public FunctionExpr( SourceLocation location, IReadOnlyList<AccessorLetExpr> parameters, Expr body, IReadOnlyList<AccessorLetExpr> closures, AccessorLetExpr name = null )
+            : base( location, name != null, false )
         {
-            IsTernaryOperator = isTernary;
-            Condition = condition;
-            WhenTrue = whenTrue;
-            WhenFalse = whenFalse;
+            if( parameters == null ) throw new ArgumentNullException();
+            if( body == null ) throw new ArgumentNullException();
+            if( closures == null ) throw new ArgumentNullException();
+            Parameters = parameters;
+            Name = name;
+            Body = body;
+            Closures = closures;
         }
 
+        public Expr Body { get; private set; }
+
         /// <summary>
-        /// Gets whether this is a ternary ?: expression (<see cref="WhenFalse"/> necessarily exists). 
-        /// Otherwise, it is an if statement: <see cref="WhenTrue"/> and WhenFalse are Blocks (and WhenFalse may be null).
+        /// Gets the name of the function. Null for anonymous function.
         /// </summary>
-        public bool IsTernaryOperator { get; private set; }
+        public AccessorLetExpr Name { get; private set; }
 
-        public Expr Condition { get; private set; }
+        public IReadOnlyList<AccessorLetExpr> Parameters { get; private set; }
 
-        public Expr WhenTrue { get; private set; }
-
-        public Expr WhenFalse { get; private set; }
+        public IReadOnlyList<AccessorLetExpr> Closures { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -61,22 +63,19 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
-        /// <summary>
-        /// This is just to ease debugging.
-        /// </summary>
-        /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            string s = "if(" + Condition.ToString() + ") then {" + WhenTrue.ToString() + "}";
-            if( WhenFalse != null ) s += " else {" + WhenFalse.ToString() + "}";
-            return s;
+            string r = "function";
+            if( Name != null ) r += ' ' + Name.Name;
+            r += '(' + String.Join( ", ", Parameters.Select( e => e.Name ) ) + ')';
+            return r + Body.ToString();
         }
-    }
 
+    }
 
 }

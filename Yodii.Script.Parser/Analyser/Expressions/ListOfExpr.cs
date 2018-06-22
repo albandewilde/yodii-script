@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\WhileExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\ListOfExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -30,27 +30,16 @@ using System.Diagnostics;
 
 namespace Yodii.Script
 {
-
-    public class WhileExpr : Expr
+    public class ListOfExpr : Expr
     {
-        public WhileExpr( SourceLocation location, Expr condition, Expr code )
-            : this( location, false, condition, code )
+        public ListOfExpr( IReadOnlyList<Expr> multi )
+            : base( SourceLocation.Empty, true, false )
         {
+            if( multi == null ) throw new ArgumentNullException( "multi" );
+            List = multi;
         }
 
-        public WhileExpr( SourceLocation location, bool doWhile, Expr condition, Expr code )
-            : base( location, true, false )
-        {
-            Condition = condition;
-            Code = code;
-            DoWhile = doWhile;
-        }
-
-        public bool DoWhile { get; private set; }
-
-        public Expr Condition { get; private set; }
-
-        public Expr Code { get; private set; }
+        public IReadOnlyList<Expr> List { get; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -59,15 +48,10 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
-        {
-            return visitor.Visit( this );
-        }
+        public override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
 
-        public override string ToString()
-        {
-            return "while(" + Condition.ToString() + ") {" + Code.ToString() + "}";
-        }
+        public override string ToString() => string.Join( ", ", List.Select( s => s.ToString() ) );
+
     }
 
 

@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\AccessorLetExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\Expr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -22,40 +22,58 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 namespace Yodii.Script
 {
     /// <summary>
-    /// Declaration of a variable.
+    /// Abstract base class of <see cref="ExprAnalysis"/> production.
     /// </summary>
-    public class AccessorLetExpr : AccessorExpr
+    public abstract class Expr
     {
         /// <summary>
-        /// Empty array of <see cref="AccessorLetExpr"/>.
+        /// Empty array of <see cref="Expr"/>.
         /// </summary>
-        public new static readonly AccessorLetExpr[] EmptyArray = new AccessorLetExpr[0];
+        public static readonly Expr[] EmptyArray = new Expr[0];
 
         /// <summary>
-        /// Initializes a new <see cref="AccessorLetExpr"/>.
+        /// Initializes a new <see cref="Expr"/>.
         /// </summary>
-        /// <param name="location">Source location.</param>
-        /// <param name="name">Variable name.</param>
-        public AccessorLetExpr( SourceLocation location, string name )
-            : base( location, null, false, false )
+        /// <param name="location">Location of this expression.</param>
+        /// <param name="isStatement">True if this expression is a statement.</param>
+        /// <param name="isbreakable">True to allow breaking on this type of expession.</param>
+        public Expr( SourceLocation location, bool isStatement, bool isbreakable )
         {
-            if( name == null ) throw new ArgumentNullException();
-            Name = name;
+            Location = location;
+            IsStatement = isStatement;
+            IsBreakable = isbreakable;
         }
 
         /// <summary>
-        /// Gets the name of the declared variable.
+        /// Gets whether this expression is breakable.
         /// </summary>
-        public string Name { get; }
+        public readonly bool IsBreakable;
+
+        /// <summary>
+        /// Gets whether this expression is a statement: either because it is syntaxically a statement 
+        /// or because a ; closes it.
+        /// </summary>
+        public readonly bool IsStatement;
+
+        /// <summary>
+        /// Gets whether this Expr is either <see cref="NopExpr.Expression"/> or <see cref="NopExpr.Statement"/>.
+        /// </summary>
+        public bool IsNop
+        {
+            get { return this == NopExpr.Expression || this == NopExpr.Statement; }
+        }
+
+        /// <summary>
+        /// Gets the location of this expression.
+        /// </summary>
+        public readonly SourceLocation Location;
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -63,14 +81,6 @@ namespace Yodii.Script
         /// <typeparam name="T">Type of the visitor's returned data.</typeparam>
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
-        [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
-
-        /// <summary>
-        /// This is just to ease debugging.
-        /// </summary>
-        /// <returns>Readable expression.</returns>
-        public override string ToString() => "let " + Name;
+        public abstract T Accept<T>( IExprVisitor<T> visitor );
     }
-
 }

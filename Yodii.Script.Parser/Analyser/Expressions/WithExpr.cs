@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\FunctionExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\IfExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -31,30 +31,18 @@ using System.Diagnostics;
 namespace Yodii.Script
 {
 
-    public class FunctionExpr : Expr
+    public class WithExpr : Expr
     {
-        public FunctionExpr( SourceLocation location, IReadOnlyList<AccessorLetExpr> parameters, Expr body, IReadOnlyList<AccessorLetExpr> closures, AccessorLetExpr name = null )
-            : base( location, name != null, false )
+        public WithExpr( SourceLocation location, Expr objExpr, Expr code )
+            : base( location, code.IsStatement, true )
         {
-            if( parameters == null ) throw new ArgumentNullException();
-            if( body == null ) throw new ArgumentNullException();
-            if( closures == null ) throw new ArgumentNullException();
-            Parameters = parameters;
-            Name = name;
-            Body = body;
-            Closures = closures;
+            Obj = objExpr;
+            Code = code;
         }
 
-        public Expr Body { get; private set; }
+        public Expr Obj { get; private set; }
 
-        /// <summary>
-        /// Gets the name of the function. Null for anonymous function.
-        /// </summary>
-        public AccessorLetExpr Name { get; private set; }
-
-        public IReadOnlyList<AccessorLetExpr> Parameters { get; private set; }
-
-        public IReadOnlyList<AccessorLetExpr> Closures { get; private set; }
+        public Expr Code { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -63,19 +51,21 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
+        /// <summary>
+        /// This is just to ease debugging.
+        /// </summary>
+        /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            string r = "function";
-            if( Name != null ) r += ' ' + Name.Name;
-            r += '(' + String.Join( ", ", Parameters.Select( e => e.Name ) ) + ')';
-            return r + Body.ToString();
+            string s = "with(" + Obj.ToString() + ") {" + Code.ToString() + "}";
+            return s;
         }
-
     }
+
 
 }

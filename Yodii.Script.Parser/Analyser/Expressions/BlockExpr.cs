@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\AssignExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\BlockExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -31,34 +31,26 @@ using System.Diagnostics;
 namespace Yodii.Script
 {
     /// <summary>
-    /// Assing expression.
+    /// Modelizes a list of expressions (that should actually be statements) and a list of locally declared variables.
     /// </summary>
-    public class AssignExpr : Expr
+    public class BlockExpr : ListOfExpr
     {
         /// <summary>
-        /// Initializes a new <see cref="AssignExpr"/>.
+        /// Initializes a new <see cref="BlockExpr"/>.
         /// </summary>
-        /// <param name="location">Source location.</param>
-        /// <param name="left">Left expression is an accessor.</param>
-        /// <param name="right">Right expression is a value.</param>
-        public AssignExpr( SourceLocation location, AccessorExpr left, Expr right )
-            : base( location, right.IsStatement, true )
+        /// <param name="statements"></param>
+        /// <param name="locals"></param>
+        public BlockExpr( IReadOnlyList<Expr> statements, IReadOnlyList<AccessorLetExpr> locals )
+            : base( statements )
         {
-            if( left == null ) throw new ArgumentNullException( "left" );
-            if( right == null ) throw new ArgumentNullException( "right" );
-            Left = left;
-            Right = right;
+            if( locals == null ) throw new ArgumentNullException( "locals" );
+            Locals = locals;
         }
 
         /// <summary>
-        /// Left accessor.
+        /// Gets the list of declared variables local to this block.
         /// </summary>
-        public AccessorExpr Left { get; private set; }
-
-        /// <summary>
-        /// Right value.
-        /// </summary>
-        public Expr Right { get; private set; }
+        public IReadOnlyList<AccessorLetExpr> Locals { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -67,7 +59,7 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
@@ -78,7 +70,7 @@ namespace Yodii.Script
         /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            return Left.ToString() + " = " + Right.ToString();
+            return '{' + String.Join( " ", List.Select( s => s.ToString() ) ) + '}';
         }
     }
 

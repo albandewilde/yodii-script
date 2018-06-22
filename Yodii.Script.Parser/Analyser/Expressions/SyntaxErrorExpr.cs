@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\ListOfExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\SyntaxErrorExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -22,24 +22,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Linq.Expressions;
-
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Yodii.Script
 {
-    public class ListOfExpr : Expr
+    public class SyntaxErrorExpr : Expr
     {
-        public ListOfExpr( IReadOnlyList<Expr> multi )
-            : base( SourceLocation.Empty, true, false )
+        public SyntaxErrorExpr( SourceLocation location, string errorMessageFormat, params object[] messageParameters )
+            : base( location, true, false )
         {
-            if( multi == null ) throw new ArgumentNullException( "multi" );
-            List = multi;
+            ErrorMessage = String.Format( errorMessageFormat, messageParameters );
         }
 
-        public IReadOnlyList<Expr> List { get; }
+        public string ErrorMessage { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -48,11 +46,15 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
+        public override T Accept<T>( IExprVisitor<T> visitor )
+        {
+            return visitor.Visit( this );
+        }
 
-        public override string ToString() => string.Join( ", ", List.Select( s => s.ToString() ) );
-
+        public override string ToString()
+        {
+            return "Syntax: " + ErrorMessage;
+        }
     }
-
 
 }

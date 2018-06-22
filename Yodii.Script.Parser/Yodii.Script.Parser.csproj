@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\Common\Shared.props" />
-  
+
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;net461</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.5.0" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="../Yodii.Script.Parser/Yodii.Script.Parser.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">

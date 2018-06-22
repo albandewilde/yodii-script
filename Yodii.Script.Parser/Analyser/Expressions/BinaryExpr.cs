@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\NopExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\BinaryExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -22,31 +22,31 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Linq.Expressions;
-
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Yodii.Script
 {
-
-    public class NopExpr : Expr
+    /// <summary>
+    /// Binary expression.
+    /// </summary>
+    public class BinaryExpr : Expr
     {
-        /// <summary>
-        /// A <see cref="NopExpr"/> with a false <see cref="Expr.IsStatement"/>.
-        /// </summary>
-        public static readonly NopExpr Expression = new NopExpr( false );
-
-        /// <summary>
-        /// A <see cref="NopExpr"/> with a true <see cref="Expr.IsStatement"/>.
-        /// </summary>
-        public static readonly NopExpr Statement = new NopExpr( true );
-
-        NopExpr( bool isStatement )
-            : base( SourceLocation.Empty, isStatement, false )
+        public BinaryExpr( SourceLocation location, Expr left, TokenizerToken binaryOperatorToken, Expr right )
+            : base( location, right.IsStatement, true )
         {
+            Left = left;
+            BinaryOperatorToken = binaryOperatorToken;
+            Right = right;
         }
+
+        public Expr Left { get; private set; }
+
+        public TokenizerToken BinaryOperatorToken { get; private set; }
+
+        public Expr Right { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -55,16 +55,18 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
+        /// <summary>
+        /// This is just to ease debugging.
+        /// </summary>
+        /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            return String.Empty;
+            return Left.ToString() + BinaryOperatorToken.Explain() + Right.ToString();
         }
     }
-
-
 }

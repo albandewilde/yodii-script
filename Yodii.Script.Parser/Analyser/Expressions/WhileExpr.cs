@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\IfExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\WhileExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -31,32 +31,26 @@ using System.Diagnostics;
 namespace Yodii.Script
 {
 
-    public class TryCatchExpr : Expr
+    public class WhileExpr : Expr
     {
-        public TryCatchExpr( SourceLocation location, Expr tryExpr, AccessorLetExpr exceptionParameter, Expr catchExpr )
-            : base( location, true, true )
+        public WhileExpr( SourceLocation location, Expr condition, Expr code )
+            : this( location, false, condition, code )
         {
-            if( tryExpr == null ) throw new ArgumentException( "tryExpr" );
-            if( catchExpr == null ) throw new ArgumentNullException( "catchExpr" );
-            TryExpr = tryExpr;
-            ExceptionParameter = exceptionParameter;
-            CatchExpr = catchExpr;
         }
 
-        /// <summary>
-        /// Gets the try expression.
-        /// </summary>
-        public Expr TryExpr { get; private set; }
+        public WhileExpr( SourceLocation location, bool doWhile, Expr condition, Expr code )
+            : base( location, true, false )
+        {
+            Condition = condition;
+            Code = code;
+            DoWhile = doWhile;
+        }
 
-        /// <summary>
-        /// Gets the exception parameter. Can be null.
-        /// </summary>
-        public AccessorLetExpr ExceptionParameter { get; private set; }
+        public bool DoWhile { get; private set; }
 
-        /// <summary>
-        /// Gets the catch expression.
-        /// </summary>
-        public Expr CatchExpr { get; private set; }
+        public Expr Condition { get; private set; }
+
+        public Expr Code { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -65,19 +59,14 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
-        /// <summary>
-        /// This is just to ease debugging.
-        /// </summary>
-        /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            string s = "[try " + TryExpr.ToString() + " catch " + CatchExpr.ToString() + "]";
-            return s;
+            return "while(" + Condition.ToString() + ") {" + Code.ToString() + "}";
         }
     }
 

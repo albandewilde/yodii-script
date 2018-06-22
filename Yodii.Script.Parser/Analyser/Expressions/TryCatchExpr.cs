@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\BlockExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\IfExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -30,27 +30,33 @@ using System.Diagnostics;
 
 namespace Yodii.Script
 {
-    /// <summary>
-    /// Modelizes a list of expressions (that should actually be statements) and a list of locally declared variables.
-    /// </summary>
-    public class BlockExpr : ListOfExpr
+
+    public class TryCatchExpr : Expr
     {
-        /// <summary>
-        /// Initializes a new <see cref="BlockExpr"/>.
-        /// </summary>
-        /// <param name="statements"></param>
-        /// <param name="locals"></param>
-        public BlockExpr( IReadOnlyList<Expr> statements, IReadOnlyList<AccessorLetExpr> locals )
-            : base( statements )
+        public TryCatchExpr( SourceLocation location, Expr tryExpr, AccessorLetExpr exceptionParameter, Expr catchExpr )
+            : base( location, true, true )
         {
-            if( locals == null ) throw new ArgumentNullException( "locals" );
-            Locals = locals;
+            if( tryExpr == null ) throw new ArgumentException( "tryExpr" );
+            if( catchExpr == null ) throw new ArgumentNullException( "catchExpr" );
+            TryExpr = tryExpr;
+            ExceptionParameter = exceptionParameter;
+            CatchExpr = catchExpr;
         }
 
         /// <summary>
-        /// Gets the list of declared variables local to this block.
+        /// Gets the try expression.
         /// </summary>
-        public IReadOnlyList<AccessorLetExpr> Locals { get; private set; }
+        public Expr TryExpr { get; private set; }
+
+        /// <summary>
+        /// Gets the exception parameter. Can be null.
+        /// </summary>
+        public AccessorLetExpr ExceptionParameter { get; private set; }
+
+        /// <summary>
+        /// Gets the catch expression.
+        /// </summary>
+        public Expr CatchExpr { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -59,7 +65,7 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
@@ -70,7 +76,8 @@ namespace Yodii.Script
         /// <returns>Readable expression.</returns>
         public override string ToString()
         {
-            return '{' + String.Join( " ", List.Select( s => s.ToString() ) ) + '}';
+            string s = "[try " + TryExpr.ToString() + " catch " + CatchExpr.ToString() + "]";
+            return s;
         }
     }
 

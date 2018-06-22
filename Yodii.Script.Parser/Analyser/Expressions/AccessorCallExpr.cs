@@ -75,7 +75,7 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
+        public override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
 
         /// <summary>
         /// This is just to ease debugging.

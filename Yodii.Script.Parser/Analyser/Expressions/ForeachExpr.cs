@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\ConstantExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\WhileExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -22,30 +22,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
+
+using System.Diagnostics;
 
 namespace Yodii.Script
 {
-    /// <summary>
-    /// Constant expression is a <see cref="Value"/>.
-    /// </summary>
-    public class ConstantExpr : Expr
-    {
-        public static readonly ConstantExpr UndefinedExpr = new ConstantExpr( SourceLocation.Empty, JSSupport.Undefined, false );
 
-        public ConstantExpr( SourceLocation location, object value, bool isStatement )
-            : base( location, isStatement, false )
+    public class ForeachExpr : Expr
+    {
+        public ForeachExpr( SourceLocation location, AccessorLetExpr var, Expr generator, Expr code )
+            : base( location, true, false )
         {
-            Value = value;
+            Variable = var;
+            Generator = generator;
+            Code = code;
         }
 
-        /// <summary>
-        /// Gets the constant value.
-        /// </summary>
-        public object Value { get; private set; }
+        public AccessorLetExpr Variable { get; }
+
+        public Expr Generator { get; }
+
+        public Expr Code { get; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -54,18 +54,11 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
-        {
-            return visitor.Visit( this );
-        }
+        public override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
 
-        /// <summary>
-        /// This is just to ease debugging.
-        /// </summary>
-        /// <returns>the value as a string or "(null)".</returns>
-        public override string ToString()
-        {
-            return Value != null ? Value.ToString() : "(null)";
-        }
+        public override string ToString() => $"foreach({Variable} in {Generator}) {{{Code}}}";
+
     }
+
+
 }

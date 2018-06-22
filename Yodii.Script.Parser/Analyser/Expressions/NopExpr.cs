@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\UnaryExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\NopExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -22,25 +22,31 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
+
+using System.Diagnostics;
 
 namespace Yodii.Script
 {
-    public class UnaryExpr : Expr
+
+    public class NopExpr : Expr
     {
-        public UnaryExpr( SourceLocation location, TokenizerToken type, Expr e )
-            : base( location, e.IsStatement, false )
+        /// <summary>
+        /// A <see cref="NopExpr"/> with a false <see cref="Expr.IsStatement"/>.
+        /// </summary>
+        public static readonly NopExpr Expression = new NopExpr( false );
+
+        /// <summary>
+        /// A <see cref="NopExpr"/> with a true <see cref="Expr.IsStatement"/>.
+        /// </summary>
+        public static readonly NopExpr Statement = new NopExpr( true );
+
+        NopExpr( bool isStatement )
+            : base( SourceLocation.Empty, isStatement, false )
         {
-            TokenType = type;
-            Expression = e;
         }
-
-        public TokenizerToken TokenType { get; private set; }
-
-        public Expr Expression { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -49,14 +55,16 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
         public override string ToString()
         {
-            return TokenType.Explain() + Expression.ToString();
+            return String.Empty;
         }
     }
+
+
 }

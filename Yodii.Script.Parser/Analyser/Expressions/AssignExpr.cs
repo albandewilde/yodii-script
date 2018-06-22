@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\WhileExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\AssignExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -30,22 +30,35 @@ using System.Diagnostics;
 
 namespace Yodii.Script
 {
-
-    public class ForeachExpr : Expr
+    /// <summary>
+    /// Assing expression.
+    /// </summary>
+    public class AssignExpr : Expr
     {
-        public ForeachExpr( SourceLocation location, AccessorLetExpr var, Expr generator, Expr code )
-            : base( location, true, false )
+        /// <summary>
+        /// Initializes a new <see cref="AssignExpr"/>.
+        /// </summary>
+        /// <param name="location">Source location.</param>
+        /// <param name="left">Left expression is an accessor.</param>
+        /// <param name="right">Right expression is a value.</param>
+        public AssignExpr( SourceLocation location, AccessorExpr left, Expr right )
+            : base( location, right.IsStatement, true )
         {
-            Variable = var;
-            Generator = generator;
-            Code = code;
+            if( left == null ) throw new ArgumentNullException( "left" );
+            if( right == null ) throw new ArgumentNullException( "right" );
+            Left = left;
+            Right = right;
         }
 
-        public AccessorLetExpr Variable { get; }
+        /// <summary>
+        /// Left accessor.
+        /// </summary>
+        public AccessorExpr Left { get; private set; }
 
-        public Expr Generator { get; }
-
-        public Expr Code { get; }
+        /// <summary>
+        /// Right value.
+        /// </summary>
+        public Expr Right { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -54,10 +67,19 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor ) => visitor.Visit( this );
+        public override T Accept<T>( IExprVisitor<T> visitor )
+        {
+            return visitor.Visit( this );
+        }
 
-        public override string ToString() => $"foreach({Variable} in {Generator}) {{{Code}}}";
-
+        /// <summary>
+        /// This is just to ease debugging.
+        /// </summary>
+        /// <returns>Readable expression.</returns>
+        public override string ToString()
+        {
+            return Left.ToString() + " = " + Right.ToString();
+        }
     }
 
 

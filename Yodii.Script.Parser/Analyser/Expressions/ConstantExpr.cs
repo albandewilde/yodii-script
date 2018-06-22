@@ -1,6 +1,6 @@
 #region LGPL License
 /*----------------------------------------------------------------------------
-* This file (Yodii.Script\Analyser\Expressions\SyntaxErrorExpr.cs) is part of Yodii-Script. 
+* This file (Yodii.Script\Analyser\Expressions\ConstantExpr.cs) is part of Yodii-Script. 
 *  
 * Yodii-Script is free software: you can redistribute it and/or modify 
 * it under the terms of the GNU Lesser General Public License as published 
@@ -29,15 +29,23 @@ using System.Threading.Tasks;
 
 namespace Yodii.Script
 {
-    public class SyntaxErrorExpr : Expr
+    /// <summary>
+    /// Constant expression is a <see cref="Value"/>.
+    /// </summary>
+    public class ConstantExpr : Expr
     {
-        public SyntaxErrorExpr( SourceLocation location, string errorMessageFormat, params object[] messageParameters )
-            : base( location, true, false )
+        public static readonly ConstantExpr UndefinedExpr = new ConstantExpr( SourceLocation.Empty, JSSupport.Undefined, false );
+
+        public ConstantExpr( SourceLocation location, object value, bool isStatement )
+            : base( location, isStatement, false )
         {
-            ErrorMessage = String.Format( errorMessageFormat, messageParameters );
+            Value = value;
         }
 
-        public string ErrorMessage { get; private set; }
+        /// <summary>
+        /// Gets the constant value.
+        /// </summary>
+        public object Value { get; private set; }
 
         /// <summary>
         /// Parametrized implementation of the visitor's double dispatch.
@@ -46,15 +54,18 @@ namespace Yodii.Script
         /// <param name="visitor">visitor.</param>
         /// <returns>The result of the visit.</returns>
         [DebuggerStepThrough]
-        internal protected override T Accept<T>( IExprVisitor<T> visitor )
+        public override T Accept<T>( IExprVisitor<T> visitor )
         {
             return visitor.Visit( this );
         }
 
+        /// <summary>
+        /// This is just to ease debugging.
+        /// </summary>
+        /// <returns>the value as a string or "(null)".</returns>
         public override string ToString()
         {
-            return "Syntax: " + ErrorMessage;
+            return Value != null ? Value.ToString() : "(null)";
         }
     }
-
 }
